@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 
 # Upload Folder Configuration
 UPLOAD_FOLDER = "uploads"
@@ -132,4 +132,4 @@ def upload_documents():
     return jsonify({"message": "Documents uploaded successfully!"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
