@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Installment Assistant</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Container for sections */
+.container, .bank-details, .cash-send-section {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Align text to the left */
+    margin-bottom: 20px; /* Add spacing between sections */
+}
+
+/* Bank Details Section */
+.bank-details {
+    background: #f1f1f1;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Cash Send Section */
+.cash-send-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Buttons */
+.button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* Response Messages */
+.response {
+    margin-top: 10px;
+    padding: 12px;
+    background: #e9ecef;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Form Labels */
+label {
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px; /* Adds spacing between labels */
+}
+
+/* Inputs and Select Dropdowns */
+input, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+    display: block;
+    margin-bottom: 10px; /* Adds spacing between inputs */
+}
+
+/* Headings */
+h1, h2, h3 {
+    text-align: center;
+}
+
+/* Paragraphs */
+p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Hidden Elements */
+.hidden {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container, .bank-details, .cash-send-section {
+        max-width: 90%;
+    }
+
+    .button {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    input, select {
+        font-size: 13px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 AI Installment Assistant</h1>
+
+    <!-- Step 1: Installment Calculator -->
+    <div id="step1">
+        <h2>💰 Installment Calculator</h2>
+        <label>iPhone Model:</label>
+        <select id="model">
+            <option value="iPhone 13 Pro">iPhone 13 Pro</option>
+            <option value="iPhone 14 Pro">iPhone 14 Pro</option>
+            <option value="iPhone 16 Pro Max">iPhone 16 Pro Max</option>
+        </select>
+
+        <label>Storage Option:</label>
+        <select id="storage">
+            <option value="128GB">128GB</option>
+            <option value="256GB">256GB</option>
+            <option value="512GB">512GB</option>
+        </select>
+
+        <label>Color:</label>
+        <select id="color">
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+            <option value="Black">Black</option>
+        </select>
+
+        <label>Deposit (Min R750):</label>
+        <input type="number" id="deposit" min="750" value="750">
+
+        <label>Repayment Period (Months):</label>
+        <select id="months">
+            <option value="3">3 Months</option>
+            <option value="6">6 Months</option>
+            <option value="12">12 Months</option>
+            <option value="24">24 Months</option>
+        </select>
+
+        <button onclick="calculateInstallment()" class="button">Calculate</button>
+        <div id="installment_result" class="response"></div>
+
+        <button onclick="nextStep(1)" class="button hidden" id="step1Continue">Continue</button>
+    </div>
+
+    <!-- Step 2: Eligibility Form -->
+    <div id="step2" class="hidden">
+        <h2>📜 Upload Eligibility Documents</h2>
+        <input type="file" id="proof_income" accept="image/*, .pdf">
+        <input type="file" id="valid_id" accept="image/*, .pdf">
+        <input type="file" id="proof_residence" accept="image/*, .pdf">
+        <button onclick="submitDocuments()" class="button">Submit</button>
+        <div id="doc_result" class="response"></div>
+
+        <button onclick="prevStep(2)" class="button">Back</button>
+        <button onclick="nextStep(2)" class="button hidden" id="step2Continue">Continue</button>
+    </div>
+
+    <!-- Step 3: Payment Method -->
+    <div id="step3" class="hidden">
+        <h2>💳 Select Payment Method</h2>
+        <select id="payment_method">
+            <option value="EFT">EFT (Electronic Funds Transfer)</option>
+            <option value="Cash Send">Cash Send</option>
+            <option value="COD">Cash on Delivery (Above R10,000)</option>
+        </select>
+        <button onclick="confirmPayment()" class="button">Confirm Payment</button>
+        <div id="payment_result" class="response hidden"></div>
+
+        <button onclick="prevStep(3)" class="button">Back</button>
+    </div>
+</div>
+
+<!-- Banking Details (For EFT) -->
+<div id="bank_details" class="response hidden">
+    <h3>🏦 Banking Details</h3>
+    <p><strong>Account Holder:</strong> Jayden Allen</p>
+    <p><strong>Bank Name:</strong> TymeBank (Business)</p>
+    <p><strong>Branch Code:</strong> 678910</p>
+    <p><strong>Account Number:</strong> 51059661139</p>
+    <p>📩 Once you've made the payment, please send the proof of payment to WhatsApp: <strong>+27 63 085 7493</strong>.</p>
+    <p>Your order will be confirmed after proof of payment is received.</p>
+
+    <!-- Upload Proof of Payment -->
+    <input type="file" id="proof_payment" accept="image/png, image/jpeg, image/jpg, .pdf">
+    <button onclick="uploadProofOfPayment()" class="button">Upload Proof of Payment</button>
+    <div id="upload_result" class="response"></div>
+</div>
+
+<!-- Cash Send Proof Upload -->
+<div id="cash_send_section" class="response hidden">
+    <h3>💸 Upload Cash Send Screenshot</h3>
+    <p>Once you've made the Cash Send transaction, upload a screenshot for verification.</p>
+    
+    <!-- Upload Cash Send Screenshot -->
+    <input type="file" id="cash_send_proof" accept="image/png, image/jpeg, image/jpg, .pdf">
+    <button onclick="uploadCashSendProof()" class="button">Upload Cash Send Proof</button>
+    <div id="cash_send_result" class="response"></div>
+</div>
+
+<!-- Cash on Delivery Confirmation -->
+<div id="cod_message" class="response hidden">
+    <h3>🚚 Cash on Delivery Request</h3>
+    <p>Your request for Cash on Delivery has been received. We will confirm your order soon.</p>
+    <p>📦 A representative will contact you for final confirmation.</p>
+</div>
+
+
+<script>function calculateInstallment() {
+    let model = document.getElementById("model").value;
+    let storage = document.getElementById("storage").value;
+    let color = document.getElementById("color").value;
+    let deposit = parseFloat(document.getElementById("deposit").value);
+    let months = parseInt(document.getElementById("months").value);
+
+    fetch("/calculate_installment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, storage, color, deposit, months })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ ${data.error}</strong>`;
+        } else {
+            document.getElementById("installment_result").innerHTML =
+                `<strong>Total Cost:</strong> R${data.total_payable}<br>
+                <strong>Monthly Payment:</strong> R${data.monthly_payment}<br>
+                <strong>Color:</strong> ${data.color}`;
+            
+            document.getElementById("step1Continue").classList.remove("hidden"); // Ensure Continue button appears
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function nextStep(currentStep) {
+    document.getElementById(`step${currentStep}`).classList.add("hidden");
+    document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
+}
+
+function prevStep(currentStep) {
+    document.getElementById(`step${currentStep}`).classList.add("hidden");
+    document.getElementById(`step${currentStep - 1}`).classList.remove("hidden");
+}
+
+function submitDocuments() {
+    let formData = new FormData();
+    formData.append("proof_income", document.getElementById("proof_income").files[0]);
+    formData.append("valid_id", document.getElementById("valid_id").files[0]);
+    formData.append("proof_residence", document.getElementById("proof_residence").files[0]);
+
+    fetch("/upload_documents", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            document.getElementById("doc_result").innerHTML = `<strong style="color: green;">✅ ${data.message}</strong>`;
+            document.getElementById("step2Continue").classList.remove("hidden");
+        } else {
+            document.getElementById("doc_result").innerHTML = `<strong style="color: red;">❌ ${data.error}</strong>`;
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function confirmPayment() {
+    let paymentMethod = document.getElementById("payment_method").value;
+    let paymentResult = document.getElementById("payment_result");
+    let bankDetails = document.getElementById("bank_details");
+    let cashSendSection = document.getElementById("cash_send_section");
+    let codMessage = document.getElementById("cod_message");
+
+    // Reset all previous displays
+    paymentResult.innerHTML = "";
+    paymentResult.classList.add("hidden");
+    bankDetails.classList.add("hidden");
+    cashSendSection.classList.add("hidden");
+    codMessage.classList.add("hidden");
+
+    if (paymentMethod === "EFT") {
+        // Show banking details for EFT
+        bankDetails.classList.remove("hidden");
+    } else if (paymentMethod === "Cash Send") {
+        // Show cash send upload section
+        cashSendSection.classList.remove("hidden");
+    } else if (paymentMethod === "COD") {
+        // Show COD request message
+        codMessage.classList.remove("hidden");
+        sendCODRequest();
+    } else {
+        // Confirm the payment method
+        paymentResult.innerHTML = `<strong>✅ Payment Method Selected:</strong> ${paymentMethod}<br>Your application has been submitted!`;
+        paymentResult.classList.remove("hidden");
+    }
+}
+
+function uploadProofOfPayment() {
+    let proofPayment = document.getElementById("proof_payment").files[0];
+    let uploadResult = document.getElementById("upload_result");
+
+    if (!proofPayment) {
+        uploadResult.innerHTML = `<strong style="color: red;">❌ Please select a file to upload.</strong>`;
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("proof_payment", proofPayment);
+
+    fetch("/upload_proof_payment", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            uploadResult.innerHTML = `<strong style="color: green;">✅ Proof of Payment Submitted Successfully!</strong>`;
+        } else {
+            uploadResult.innerHTML = `<strong style="color: red;">❌ ${data.error}</strong>`;
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function uploadCashSendProof() {
+    let proofCashSend = document.getElementById("cash_send_proof").files[0];
+    let cashSendResult = document.getElementById("cash_send_result");
+
+    if (!proofCashSend) {
+        cashSendResult.innerHTML = `<strong style="color: red;">❌ Please select a file to upload.</strong>`;
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("cash_send_proof", proofCashSend);
+
+    fetch("/upload_cash_send_proof", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            cashSendResult.innerHTML = `<strong style="color: green;">✅ Cash Send Proof Approved!</strong>`;
+        } else {
+            cashSendResult.innerHTML = `<strong style="color: red;">❌ ${data.error}</strong>`;
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function sendCODRequest() {
+    let codMessage = document.getElementById("cod_message");
+    codMessage.innerHTML = `<strong style="color: green;">✅ Cash on Delivery request has been sent successfully!</strong>`;
+}
+
+
+</script>
+
+</body>
+</html>
