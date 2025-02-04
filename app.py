@@ -47,7 +47,7 @@ IPHONE_PRICES = {
     "iPhone 16": {"128GB": 18000, "256GB": 18500, "512GB": 19000},
     "iPhone 16 Plus": {"128GB": 19000, "256GB": 19500, "512GB": 20000},
     "iPhone 16 Pro": {"128GB": 19000, "256GB": 19500, "512GB": 20000},
-    "iPhone 16 Pro Max": {"128GB": 19500, "256GB": 20000, "512GB": 20500}
+    "iPhone 16 Pro Max": {"128GB": 19500, "256GB": 20000, "512GB": 20500},
 }
 
 # Available Colors
