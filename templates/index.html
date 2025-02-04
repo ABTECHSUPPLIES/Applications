@@ -248,7 +248,9 @@ p {
 document.addEventListener("DOMContentLoaded", function () {
     updateStorageOptions(); // Populate storage dropdown on load
 });
+    
 // ✅ Fix: Calculate Installment Button
+// ✅ Fix: Ensure "Continue" button only appears when calculation is successful
 function calculateInstallment() {
     let model = document.getElementById("model").value;
     let storage = document.getElementById("storage").value;
@@ -283,7 +285,7 @@ function calculateInstallment() {
                 <p><strong>Total Payable:</strong> R${result.total_payable}</p>
                 <p><strong>Monthly Payment:</strong> R${result.monthly_payment}</p>
             `;
-            document.getElementById("step1Continue").classList.remove("hidden");
+            document.getElementById("step1Continue").classList.remove("hidden");  // Show Continue button
         }
     })
     .catch(error => {
@@ -293,18 +295,32 @@ function calculateInstallment() {
 }
 
 function nextStep(currentStep) {
-    document.getElementById(`step${currentStep}`).classList.add("hidden");
-    document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
+    let currentDiv = document.getElementById(`step${currentStep}`);
+    let nextDiv = document.getElementById(`step${currentStep + 1}`);
+
+    if (currentDiv && nextDiv) {
+        currentDiv.classList.add("hidden");  // Hide current step
+        nextDiv.classList.remove("hidden");  // Show next step
+    } else {
+        console.error(`Step ${currentStep} or Step ${currentStep + 1} not found`);
+    }
 }
+
 
 
 function prevStep(currentStep) {
-    document.getElementById(`step${currentStep}`).classList.add("hidden");
-    document.getElementById(`step${currentStep - 1}`).classList.remove("hidden");
+    let currentDiv = document.getElementById(`step${currentStep}`);
+    let prevDiv = document.getElementById(`step${currentStep - 1}`);
+
+    if (currentDiv && prevDiv) {
+        currentDiv.classList.add("hidden");  // Hide current step
+        prevDiv.classList.remove("hidden");  // Show previous step
+    } else {
+        console.error(`Step ${currentStep} or Step ${currentStep - 1} not found`);
+    }
 }
 
-
-// ✅ Fix: Show Continue Button After Submission
+// ✅ Fix: Ensure "Continue" button appears after document submission
 function submitDocuments() {
     let formData = new FormData();
     formData.append("proof_income", document.getElementById("proof_income").files[0]);
@@ -319,14 +335,13 @@ function submitDocuments() {
     .then(data => {
         if (data.message) {
             document.getElementById("doc_result").innerHTML = `<strong style="color: green;">✅ ${data.message}</strong>`;
-            document.getElementById("step2Continue").classList.remove("hidden");
+            document.getElementById("step2Continue").classList.remove("hidden");  // Show Continue button
         } else {
             document.getElementById("doc_result").innerHTML = `<strong style="color: red;">❌ ${data.error}</strong>`;
         }
     })
     .catch(error => console.error("Error:", error));
 }
-
 function confirmPayment() {
     let paymentMethod = document.getElementById("payment_method").value;
     let paymentResult = document.getElementById("payment_result");
