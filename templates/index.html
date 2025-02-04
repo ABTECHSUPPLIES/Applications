@@ -137,28 +137,31 @@ p {
     <h1>📊 AI Installment Assistant</h1>
 
  <!-- Dynamic iPhone Model Selection -->
-    <label>iPhone Model:</label>
-    <select id="model">
-        {% for model in models %}
-            <option value="{{ model }}">{{ model }}</option>
-        {% endfor %}
-    </select>
+<label>iPhone Model:</label>
+<select id="model" onchange="updateStorageOptions()">
+    {% for iphone in iphone_details %}
+        <option value="{{ iphone.model }}">{{ iphone.model }}</option>
+    {% endfor %}
+</select>
+    
+<label>Storage Option:</label>
+<select id="storage">
+    {% for iphone in iphone_details %}
+        {% if loop.first %}
+            {% for storage in iphone.storage_options %}
+                <option value="{{ storage }}">{{ storage }}</option>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+</select>
 
 
-        <label>Storage Option:</label>
-        <select id="storage">
-            <option value="128GB">128GB</option>
-            <option value="256GB">256GB</option>
-            <option value="512GB">512GB</option>
-        </select>
-
-    <!-- Dynamic Color Selection -->
-    <label>Color Option:</label>
-    <select id="color">
-        {% for color in colors %}
-            <option value="{{ color }}">{{ color }}</option>
-        {% endfor %}
-    </select>
+<label>Color Option:</label>
+<select id="color">
+    {% for color in iphone_details[0].colors %}
+        <option value="{{ color }}">{{ color }}</option>
+    {% endfor %}
+</select>
 
         <label>Deposit (Min R750):</label>
         <input type="number" id="deposit" min="750" value="750">
@@ -404,6 +407,26 @@ function sendCODRequest() {
     let codMessage = document.getElementById("cod_message");
     codMessage.innerHTML = `<strong style="color: green;">✅ Cash on Delivery request has been sent successfully!</strong>`;
 }
+    function updateStorageOptions() {
+    var model = document.getElementById("model").value;
+    var storageDropdown = document.getElementById("storage");
+
+    fetch("/iphone_data")  // Fetches data from backend
+        .then(response => response.json())
+        .then(data => {
+            storageDropdown.innerHTML = "";
+            var storages = data[model];  // Get storage options for selected model
+
+            storages.forEach(storage => {
+                var option = document.createElement("option");
+                option.value = storage;
+                option.textContent = storage;
+                storageDropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching storage options:", error));
+}
+</script>
 
 
 </script>
