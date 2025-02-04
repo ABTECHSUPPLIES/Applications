@@ -4,6 +4,10 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder="templates")
 
+print("Templates Path:", os.path.abspath("templates"))
+print("Files in Templates:", os.listdir("templates"))
+
+
 # Upload Folder Configuration
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf", "doc", "docx"}
