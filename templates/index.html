@@ -136,15 +136,14 @@ p {
 <div class="container">
     <h1>📊 AI Installment Assistant</h1>
 
-    <!-- Step 1: Installment Calculator -->
-    <div id="step1">
-        <h2>💰 Installment Calculator</h2>
-        <label>iPhone Model:</label>
-        <select id="model">
-            <option value="iPhone 13 Pro">iPhone 13 Pro</option>
-            <option value="iPhone 14 Pro">iPhone 14 Pro</option>
-            <option value="iPhone 16 Pro Max">iPhone 16 Pro Max</option>
-        </select>
+ <!-- Dynamic iPhone Model Selection -->
+    <label>iPhone Model:</label>
+    <select id="model">
+        {% for model in models %}
+            <option value="{{ model }}">{{ model }}</option>
+        {% endfor %}
+    </select>
+
 
         <label>Storage Option:</label>
         <select id="storage">
@@ -153,12 +152,13 @@ p {
             <option value="512GB">512GB</option>
         </select>
 
-        <label>Color:</label>
-        <select id="color">
-            <option value="Silver">Silver</option>
-            <option value="Gold">Gold</option>
-            <option value="Black">Black</option>
-        </select>
+    <!-- Dynamic Color Selection -->
+    <label>Color Option:</label>
+    <select id="color">
+        {% for color in colors %}
+            <option value="{{ color }}">{{ color }}</option>
+        {% endfor %}
+    </select>
 
         <label>Deposit (Min R750):</label>
         <input type="number" id="deposit" min="750" value="750">
@@ -240,34 +240,49 @@ p {
 </div>
 
 
-<script>function calculateInstallment() {
-    let model = document.getElementById("model").value;
-    let storage = document.getElementById("storage").value;
-    let color = document.getElementById("color").value;
-    let deposit = parseFloat(document.getElementById("deposit").value);
-    let months = parseInt(document.getElementById("months").value);
+<script>
+    function calculateInstallment() {
+        // Get user input values
+        var model = document.getElementById("model").value;
+        var storage = document.getElementById("storage").value;
+        var color = document.getElementById("color").value;
+        var deposit = parseFloat(document.getElementById("deposit").value);
+        var months = parseInt(document.getElementById("months").value);
 
-    fetch("/calculate_installment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model, storage, color, deposit, months })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ ${data.error}</strong>`;
-        } else {
-            document.getElementById("installment_result").innerHTML =
-                `<strong>Total Cost:</strong> R${data.total_payable}<br>
-                <strong>Monthly Payment:</strong> R${data.monthly_payment}<br>
-                <strong>Color:</strong> ${data.color}`;
-            
-            document.getElementById("step1Continue").classList.remove("hidden"); // Ensure Continue button appears
-        }
-    })
-    .catch(error => console.error("Error:", error));
-}
-
+                // Prepare data for API request
+        var data = {
+            model: model,
+            storage: storage,
+            color: color,
+            deposit: deposit,
+            months: months
+        };
+        
+        // Make API request to calculate installment
+        fetch("/calculate_installment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Display the result
+            if (result.error) {
+                alert(result.error);
+            } else {
+                document.getElementById("result").innerHTML = `
+                    <p><strong>Monthly Payment:</strong> R${result.monthly_payment}</p>
+                    <p><strong>Total Payable:</strong> R${result.total_payable}</p>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+    
 function nextStep(currentStep) {
     document.getElementById(`step${currentStep}`).classList.add("hidden");
     document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
