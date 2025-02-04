@@ -244,7 +244,11 @@ p {
 
 
 <script>
-
+    
+document.addEventListener("DOMContentLoaded", function () {
+    updateStorageOptions(); // Populate storage dropdown on load
+});
+// ✅ Fix: Calculate Installment Button
 function calculateInstallment() {
     let model = document.getElementById("model").value;
     let storage = document.getElementById("storage").value;
@@ -252,8 +256,10 @@ function calculateInstallment() {
     let deposit = parseFloat(document.getElementById("deposit").value);
     let months = parseInt(document.getElementById("months").value);
 
-    // Debugging: Print the data being sent
-    console.log("Sending Data:", { model, storage, color, deposit, months });
+    if (!model || !storage || !color || isNaN(deposit) || isNaN(months)) {
+        document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ Please fill in all fields.</strong>`;
+        return;
+    }
 
     fetch("/calculate_installment", {
         method: "POST",
@@ -265,7 +271,6 @@ function calculateInstallment() {
         let resultDiv = document.getElementById("installment_result");
         if (result.error) {
             resultDiv.innerHTML = `<strong style="color: red;">❌ ${result.error}</strong>`;
-            console.error("Error:", result.error);
         } else {
             resultDiv.innerHTML = `
                 <p><strong>Model:</strong> ${result.model}</p>
@@ -287,17 +292,19 @@ function calculateInstallment() {
     });
 }
 
-
 function nextStep(currentStep) {
     document.getElementById(`step${currentStep}`).classList.add("hidden");
     document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
 }
+
 
 function prevStep(currentStep) {
     document.getElementById(`step${currentStep}`).classList.add("hidden");
     document.getElementById(`step${currentStep - 1}`).classList.remove("hidden");
 }
 
+
+// ✅ Fix: Show Continue Button After Submission
 function submitDocuments() {
     let formData = new FormData();
     formData.append("proof_income", document.getElementById("proof_income").files[0]);
@@ -409,11 +416,11 @@ function sendCODRequest() {
     let codMessage = document.getElementById("cod_message");
     codMessage.innerHTML = `<strong style="color: green;">✅ Cash on Delivery request has been sent successfully!</strong>`;
 }
-    function updateStorageOptions() {
+function updateStorageOptions() {
     var model = document.getElementById("model").value;
     var storageDropdown = document.getElementById("storage");
 
-    fetch("/iphone_data")  // Fetches data from backend
+    fetch("/iphone_data")  // Fetches storage options for selected model
         .then(response => response.json())
         .then(data => {
             storageDropdown.innerHTML = "";
