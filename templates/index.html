@@ -244,6 +244,7 @@ p {
 
 
 <script>
+
 function calculateInstallment() {
     let model = document.getElementById("model").value;
     let storage = document.getElementById("storage").value;
@@ -251,10 +252,8 @@ function calculateInstallment() {
     let deposit = parseFloat(document.getElementById("deposit").value);
     let months = parseInt(document.getElementById("months").value);
 
-    if (!model || !storage || !color || isNaN(deposit) || isNaN(months)) {
-        document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ Please fill in all fields.</strong>`;
-        return;
-    }
+    // Debugging: Print the data being sent
+    console.log("Sending Data:", { model, storage, color, deposit, months });
 
     fetch("/calculate_installment", {
         method: "POST",
@@ -266,6 +265,7 @@ function calculateInstallment() {
         let resultDiv = document.getElementById("installment_result");
         if (result.error) {
             resultDiv.innerHTML = `<strong style="color: red;">❌ ${result.error}</strong>`;
+            console.error("Error:", result.error);
         } else {
             resultDiv.innerHTML = `
                 <p><strong>Model:</strong> ${result.model}</p>
@@ -282,10 +282,12 @@ function calculateInstallment() {
         }
     })
     .catch(error => {
-        console.error("Error:", error);
-        document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ Failed to calculate installment.</strong>`;
+        console.error("Fetch Error:", error);
+        document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ Server Error. Please try again.</strong>`;
     });
 }
+
+
 function nextStep(currentStep) {
     document.getElementById(`step${currentStep}`).classList.add("hidden");
     document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
