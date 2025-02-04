@@ -4,11 +4,6 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder=os.path.join(os.getcwd(), "templates"))
 
-print("Templates Path:", os.path.abspath("templates"))
-print("Files in Templates:", os.listdir("templates"))
-
-
-# Upload Folder Configuration
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf", "doc", "docx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -18,7 +13,6 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 # iPhone Models, Storage Options, and Prices
 IPHONE_PRICES = {
@@ -51,28 +45,23 @@ IPHONE_PRICES = {
     "iPhone 16 Pro Max": {"128GB": 19500, "256GB": 20000, "512GB": 20500},
 }
 
-# Available Colors
 IPHONE_COLORS = ["Silver", "Graphite", "Gold", "Blue", "Green", "Black"]
-
-# Interest Rates Based on Repayment Period
 INTEREST_RATES = {3: 0.05, 6: 0.08, 12: 0.12, 24: 0.15}
 
 @app.route('/')
 def home():
     iphone_details = []
     
-    # Preparing structured data for template rendering
     for model, storage_options in IPHONE_PRICES.items():
         iphone_details.append({
             "model": model,
-            "storage_options": list(storage_options.keys()),  # Convert dict keys to list
-            "prices": storage_options,  # Keep prices mapped to storage
+            "storage_options": list(storage_options.keys()),
+            "prices": storage_options,
             "colors": IPHONE_COLORS
         })
     
     return render_template("index.html", iphone_details=iphone_details)
 
-@app.route('/calculate_installment', methods=['POST'])
 def calculate_installment():
     data = request.json
     model = data.get("model")  # Get the selected iPhone model
