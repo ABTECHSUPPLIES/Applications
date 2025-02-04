@@ -76,29 +76,48 @@ def home():
 @app.route('/calculate_installment', methods=['POST'])
 def calculate_installment():
     data = request.json
-    model = data.get("model")
-    storage = data.get("storage")
-    color = data.get("color")
-    deposit = float(data.get("deposit", 750))
-    months = int(data.get("months"))
+    model = data.get("model")  # Get the selected iPhone model
+    storage = data.get("storage")  # Get the selected storage size
+    color = data.get("color")  # Get the selected color
+    deposit = float(data.get("deposit", 750))  # Get the deposit amount
+    months = int(data.get("months"))  # Get the repayment period
 
+    # ✅ VALIDATION CHECKS ✅
+
+    # Check if the selected model is valid
     if model not in IPHONE_PRICES:
-        return jsonify({"error": "Invalid iPhone model"}), 400
-    if storage not in IPHONE_PRICES[model]:
-        return jsonify({"error": "Invalid storage option"}), 400
-    if color not in IPHONE_COLORS:
-        return jsonify({"error": "Invalid color option"}), 400
-    if months not in INTEREST_RATES:
-        return jsonify({"error": "Invalid repayment period"}), 400
-    if deposit < 750:
-        return jsonify({"error": "Deposit must be at least R750"}), 400
+        return jsonify({"error": "Invalid iPhone model selected."}), 400
 
+    # Check if the selected storage option exists for the chosen model
+    if storage not in IPHONE_PRICES[model]:
+        return jsonify({"error": "Invalid storage option for this iPhone model."}), 400
+
+    # Check if the selected color is available
+    if color not in IPHONE_COLORS:
+        return jsonify({"error": "Invalid color option."}), 400
+
+    # Check if the repayment period is valid
+    if months not in INTEREST_RATES:
+        return jsonify({"error": "Invalid repayment period. Choose 3, 6, 12, or 24 months."}), 400
+
+    # Check if the deposit is at least R750
+    if deposit < 750:
+        return jsonify({"error": "Deposit must be at least R750."}), 400
+
+    # ✅ INSTALLMENT CALCULATION ✅
+
+    # Get the base price of the selected model and storage
     price = IPHONE_PRICES[model][storage]
+
+    # Get the interest rate for the selected repayment period
     interest_rate = INTEREST_RATES[months]
+
+    # Calculate financing details
     amount_financed = price - deposit
     total_payable = amount_financed * (1 + interest_rate)
     monthly_payment = total_payable / months
 
+    # Return the calculated installment details as a JSON response
     return jsonify({
         "model": model,
         "storage": storage,
@@ -110,8 +129,6 @@ def calculate_installment():
         "total_payable": round(total_payable, 2),
         "monthly_payment": round(monthly_payment, 2)
     })
-
-
 # Upload Proof of Payment (EFT)
 @app.route('/upload_proof_payment', methods=['POST'])
 def upload_proof_payment():
