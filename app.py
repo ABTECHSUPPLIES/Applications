@@ -164,6 +164,12 @@ def upload_documents():
             return jsonify({"error": f"Invalid file format for {key}"}), 400
 
     return jsonify({"message": "Documents uploaded successfully!"})
+    
+@app.route('/iphone_data', methods=['GET'])
+def get_iphone_data():
+    iphone_data = {model: list(storage.keys()) for model, storage in IPHONE_PRICES.items()}
+    return jsonify(iphone_data)
+
 
 if __name__ == '__main__':
     app.run()
