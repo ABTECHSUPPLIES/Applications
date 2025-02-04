@@ -65,9 +65,8 @@ def home():
     for model, storage_options in IPHONE_PRICES.items():
         iphone_details.append({
             "model": model,
-            "storage_options": [
-                {"size": storage, "price": price} for storage, price in storage_options.items()
-            ],
+            "storage_options": list(storage_options.keys()),  # Convert dict keys to list
+            "prices": storage_options,  # Keep prices mapped to storage
             "colors": IPHONE_COLORS
         })
     
