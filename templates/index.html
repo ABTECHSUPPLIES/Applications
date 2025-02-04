@@ -244,48 +244,48 @@ p {
 
 
 <script>
-    function calculateInstallment() {
-        // Get user input values
-        var model = document.getElementById("model").value;
-        var storage = document.getElementById("storage").value;
-        var color = document.getElementById("color").value;
-        var deposit = parseFloat(document.getElementById("deposit").value);
-        var months = parseInt(document.getElementById("months").value);
+function calculateInstallment() {
+    let model = document.getElementById("model").value;
+    let storage = document.getElementById("storage").value;
+    let color = document.getElementById("color").value;
+    let deposit = parseFloat(document.getElementById("deposit").value);
+    let months = parseInt(document.getElementById("months").value);
 
-                // Prepare data for API request
-        var data = {
-            model: model,
-            storage: storage,
-            color: color,
-            deposit: deposit,
-            months: months
-        };
-        
-        // Make API request to calculate installment
-        fetch("/calculate_installment", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            // Display the result
-            if (result.error) {
-                alert(result.error);
-            } else {
-                document.getElementById("result").innerHTML = `
-                    <p><strong>Monthly Payment:</strong> R${result.monthly_payment}</p>
-                    <p><strong>Total Payable:</strong> R${result.total_payable}</p>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
+    if (!model || !storage || !color || isNaN(deposit) || isNaN(months)) {
+        document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ Please fill in all fields.</strong>`;
+        return;
     }
-    
+
+    fetch("/calculate_installment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, storage, color, deposit, months })
+    })
+    .then(response => response.json())
+    .then(result => {
+        let resultDiv = document.getElementById("installment_result");
+        if (result.error) {
+            resultDiv.innerHTML = `<strong style="color: red;">❌ ${result.error}</strong>`;
+        } else {
+            resultDiv.innerHTML = `
+                <p><strong>Model:</strong> ${result.model}</p>
+                <p><strong>Storage:</strong> ${result.storage}</p>
+                <p><strong>Color:</strong> ${result.color}</p>
+                <p><strong>Price:</strong> R${result.price}</p>
+                <p><strong>Deposit:</strong> R${result.deposit}</p>
+                <p><strong>Repayment Period:</strong> ${result.months} months</p>
+                <p><strong>Interest Rate:</strong> ${result.interest_rate}</p>
+                <p><strong>Total Payable:</strong> R${result.total_payable}</p>
+                <p><strong>Monthly Payment:</strong> R${result.monthly_payment}</p>
+            `;
+            document.getElementById("step1Continue").classList.remove("hidden");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("installment_result").innerHTML = `<strong style="color: red;">❌ Failed to calculate installment.</strong>`;
+    });
+}
 function nextStep(currentStep) {
     document.getElementById(`step${currentStep}`).classList.add("hidden");
     document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
