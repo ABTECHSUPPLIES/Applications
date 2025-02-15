@@ -183,12 +183,27 @@ p {
 
 <div id="step2" class="hidden">
     <h2>📜 Upload Eligibility Documents</h2>
-    <input type="proof_income" id="proof_income" accept="image/*, .pdf">
-    <input type="valid_id" id="valid_id" accept="image/*, .pdf">
-    <input type="proof_residence" id="proof_residence" accept="image/*, .pdf">
-    <button onclick="submitDocuments()" class="button">Submit</button>
+    
+    <!-- Proof of Income -->
+    <label for="proof_income">Proof of Income (Image or PDF):</label>
+    <input type="file" id="proof_income" accept="image/*, .pdf">
+    <br><br>
+
+    <!-- Valid ID -->
+    <label for="valid_id">Valid ID (Image or PDF):</label>
+    <input type="file" id="valid_id" accept="image/*, .pdf">
+    <br><br>
+
+    <!-- Proof of Residence -->
+    <label for="proof_residence">Proof of Residence (Image or PDF):</label>
+    <input type="file" id="proof_residence" accept="image/*, .pdf">
+    <br><br>
+
+    <!-- Submit Button -->
+    <button onclick="submitDocuments()" class="button">Submit Documents</button>
     <div id="doc_result" class="response"></div>
 
+    <!-- Navigation Buttons -->
     <button onclick="prevStep(2)" class="button">Back</button>
     <button onclick="nextStep(2)" class="button hidden" id="step2Continue">Continue</button>
 </div>
